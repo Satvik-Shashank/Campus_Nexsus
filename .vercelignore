@@ -3,5 +3,6 @@
 !.env.example
 data/
 test/
+scripts/
 node_modules/
 .claude/

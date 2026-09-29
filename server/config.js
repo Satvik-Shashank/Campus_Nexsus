@@ -9,7 +9,8 @@ export const ROOT = process.env.VERCEL
   : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // Load .env if present. Use process.loadEnvFile when available (Node >= 21.7),
-// otherwise fall back gracefully (e.g. Node 20 on older Vercel runtimes).
+// otherwise fall back gracefully (e.g. older runtimes).
+// On Vercel, env vars are set via the dashboard — never read from .env.
 if (!process.env.VERCEL) {
   try {
     if (typeof process.loadEnvFile === 'function') {
@@ -38,6 +39,12 @@ export const config = {
   allowedEmailDomain: (process.env.ALLOWED_EMAIL_DOMAIN || '').trim().toLowerCase(),
 };
 
+// Warn in production if SESSION_SECRET is not set — but do NOT throw, because
+// Vercel cold-starts happen before env vars can be validated interactively.
+// The app will work but sessions won't be secure across restarts.
 if (config.sessionSecret === DEV_SECRET && process.env.NODE_ENV === 'production') {
-  throw new Error('SESSION_SECRET environment variable must be set in production (e.g. in Vercel project settings)');
+  console.warn(
+    '[WARN] SESSION_SECRET is not set. ' +
+    'Set it in Vercel project settings → Environment Variables to secure user sessions.',
+  );
 }

@@ -47,9 +47,13 @@ export function createApp() {
   app.use('/api', skillRoutes);
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'API route not found')));
 
-  app.use(express.static(path.join(ROOT, 'public'), { extensions: ['html'], maxAge: 0 }));
-  // SPA fallback (hash routing is used, but serve index for any other path)
-  app.use((req, res, next) => (req.method === 'GET' ? res.sendFile(path.join(ROOT, 'public', 'index.html')) : next()));
+  // On Vercel, public/ is served by the CDN (outputDirectory in vercel.json).
+  // For local development, Express serves static files directly.
+  if (!process.env.VERCEL) {
+    app.use(express.static(path.join(ROOT, 'public'), { extensions: ['html'], maxAge: 0 }));
+    // SPA fallback (hash routing is used, but serve index for any non-API GET)
+    app.use((req, res, next) => (req.method === 'GET' ? res.sendFile(path.join(ROOT, 'public', 'index.html')) : next()));
+  }
 
   // eslint-disable-next-line no-unused-vars
   app.use((err, _req, res, _next) => {

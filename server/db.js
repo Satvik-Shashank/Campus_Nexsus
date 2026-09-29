@@ -10,7 +10,11 @@ let db;
 export function openDb(file = config.databasePath) {
   if (file !== ':memory:') fs.mkdirSync(path.dirname(file), { recursive: true });
   const conn = new DatabaseSync(file);
-  conn.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 3000;');
+  // Use WAL journal mode locally for better concurrency.
+  // On Vercel /tmp is a RAM-backed ephemeral filesystem — use DELETE mode
+  // to avoid WAL shm/wal file issues in the sandboxed environment.
+  const journalMode = process.env.VERCEL ? 'DELETE' : 'WAL';
+  conn.exec(`PRAGMA foreign_keys = ON; PRAGMA journal_mode = ${journalMode}; PRAGMA busy_timeout = 3000;`);
   return conn;
 }
 

@@ -8,6 +8,7 @@
     "node": "22.x"
   },
   "scripts": {
+    "vercel-build": "",
     "start": "node --disable-warning=ExperimentalWarning server/index.js",
     "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
     "db:migrate": "node --disable-warning=ExperimentalWarning server/migrate.js",
