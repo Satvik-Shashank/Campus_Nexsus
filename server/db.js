@@ -35,6 +35,7 @@ export function migrate(conn) {
   conn.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
     name TEXT PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')))`);
   const done = new Set(conn.prepare('SELECT name FROM schema_migrations').all().map((r) => r.name));
+  if (!fs.existsSync(MIGRATIONS_DIR)) return [];
   const files = fs.readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql')).sort();
   const applied = [];
   for (const file of files) {
