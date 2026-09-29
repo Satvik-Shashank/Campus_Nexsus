@@ -5,6 +5,9 @@ import { getDb } from '../server/db.js';
 import { seed } from '../server/seed.js';
 import { createApp } from '../server/app.js';
 
-seed(getDb()); // no-op when the database already has data
+// Initialise + seed on cold start (no-op when the database already has data).
+// Errors here are intentionally surfaced so deployment problems are visible.
+const db = getDb();
+seed(db);
 
 export default createApp();
